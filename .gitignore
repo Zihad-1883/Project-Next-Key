@@ -1,0 +1,33 @@
+# NextKey - Ignore Lists
+
+# Documentation
+*.md
+
+# Environments
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+client/.env
+server/.env
+
+# Node Dependency Modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Next.js Build Outputs
+client/.next/
+client/out/
+client/build/
+
+# Express Server Build Outputs
+server/dist/
+server/build/
+server/logs/
+
+# System / OS
+.DS_Store
+Thumbs.db
