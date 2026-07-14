@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectToDatabase } from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
+import propertyRoutes from './routes/propertyRoutes.js';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 
 // Mount API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/properties', propertyRoutes);
 
 // Server health check
 app.get('/api/health', (req, res) => {
