@@ -1,21 +1,25 @@
 import { Router } from 'express';
-import { createProperty, deleteProperty, getMyProperties } from '../controllers/propertyController.js';
+import { 
+  createProperty, 
+  deleteProperty, 
+  getMyProperties, 
+  getProperties, 
+  getPropertyById 
+} from '../controllers/propertyController.js';
 import { authenticateJWT } from '../middleware/authMiddleware.js';
 import { requireLandlord } from '../middleware/roleMiddleware.js';
 
 const router = Router();
 
-// Protect all routes in this router since they are specific to Landlord Listing Management
-router.use(authenticateJWT);
-router.use(requireLandlord);
+// 1. Static Protected endpoints (placed first to avoid wildcard conflicts)
+router.get('/my-listings', authenticateJWT, requireLandlord, getMyProperties);
 
-// POST /api/properties -> Add a listing
-router.post('/', createProperty);
+// 2. Public endpoints
+router.get('/', getProperties);
+router.get('/:id', getPropertyById);
 
-// GET /api/properties/my-listings -> Fetch logged-in landlord's listings
-router.get('/my-listings', getMyProperties);
-
-// DELETE /api/properties/:id -> Remove owned property listing
-router.delete('/:id', deleteProperty);
+// 3. Dynamic / Write Action Protected endpoints
+router.post('/', authenticateJWT, requireLandlord, createProperty);
+router.delete('/:id', authenticateJWT, requireLandlord, deleteProperty);
 
 export default router;

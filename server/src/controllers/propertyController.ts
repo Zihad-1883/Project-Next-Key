@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import { getDb } from '../config/db.js';
 import { Property } from '../types/database.js';
@@ -154,5 +154,134 @@ export const getMyProperties = async (req: AuthRequest, res: Response): Promise<
   } catch (error) {
     console.error('Error getting landlord listings:', error);
     res.status(500).json({ success: false, message: 'Internal server error fetching listings.' });
+  }
+};
+
+export const getProperties = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const {
+      search,
+      minPrice,
+      maxPrice,
+      propertyType,
+      bedrooms,
+      bathrooms,
+      page,
+      limit,
+      sortBy,
+      sortOrder,
+    } = req.query;
+
+    const query: any = {};
+
+    // 1. Text search matching title or location or shortDescription case-insensitive
+    if (search && typeof search === 'string') {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { location: { $regex: search, $options: 'i' } },
+        { shortDescription: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    // 2. Price filter
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = Number(minPrice);
+      if (maxPrice) query.price.$lte = Number(maxPrice);
+    }
+
+    // 3. Property Type
+    if (propertyType && typeof propertyType === 'string' && propertyType !== 'All') {
+      query.propertyType = propertyType;
+    }
+
+    // 4. Bedrooms
+    if (bedrooms) {
+      query.bedrooms = { $gte: Number(bedrooms) };
+    }
+
+    // 5. Bathrooms
+    if (bathrooms) {
+      query.bathrooms = { $gte: Number(bathrooms) };
+    }
+
+    // Pagination
+    const pageNum = Math.max(1, Number(page) || 1);
+    const limitNum = Math.max(1, Number(limit) || 12);
+    const skipNum = (pageNum - 1) * limitNum;
+
+    // Sorting
+    const sortField = typeof sortBy === 'string' ? sortBy : 'createdAt';
+    const sortDir = sortOrder === 'asc' ? 1 : -1;
+
+    const db = await getDb();
+    const total = await db.collection<Property>('properties').countDocuments(query);
+    const properties = await db
+      .collection<Property>('properties')
+      .find(query)
+      .sort({ [sortField]: sortDir })
+      .skip(skipNum)
+      .limit(limitNum)
+      .toArray();
+
+    res.status(200).json({
+      success: true,
+      properties: properties.map((p) => ({
+        id: p._id!.toString(),
+        ...p,
+      })),
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        pages: Math.ceil(total / limitNum),
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching public properties:', error);
+    res.status(500).json({ success: false, message: 'Internal server error fetching listings.' });
+  }
+};
+
+export const getPropertyById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    if (typeof id !== 'string' || !ObjectId.isValid(id)) {
+      res.status(400).json({ success: false, message: 'Invalid listing identifier.' });
+      return;
+    }
+
+    const db = await getDb();
+    const property = await db.collection<Property>('properties').findOne({ _id: new ObjectId(id) });
+
+    if (!property) {
+      res.status(404).json({ success: false, message: 'Property listing not found.' });
+      return;
+    }
+
+    // Fetch landlord details to show on details view
+    const landlord = await db.collection('users').findOne(
+      { _id: property.landlordId },
+      { projection: { name: 1, email: 1, role: 1 } }
+    );
+
+    res.status(200).json({
+      success: true,
+      property: {
+        id: property._id!.toString(),
+        ...property,
+        landlord: landlord
+          ? {
+              id: landlord._id.toString(),
+              name: landlord.name,
+              email: landlord.email,
+            }
+          : null,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching single property:', error);
+    res.status(500).json({ success: false, message: 'Internal server error fetching property.' });
   }
 };
