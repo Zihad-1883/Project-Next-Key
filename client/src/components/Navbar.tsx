@@ -40,6 +40,24 @@ export default function Navbar() {
             <span>Browse Homes</span>
           </Link>
 
+          <Link
+            href="/about"
+            className={`text-sm font-semibold hover:text-indigo-600 transition-colors ${
+              isActive('/about') ? 'text-indigo-600' : 'text-slate-500'
+            }`}
+          >
+            <span>About Us</span>
+          </Link>
+
+          <Link
+            href="/contact"
+            className={`text-sm font-semibold hover:text-indigo-600 transition-colors ${
+              isActive('/contact') ? 'text-indigo-600' : 'text-slate-500'
+            }`}
+          >
+            <span>Contact</span>
+          </Link>
+
           {user && (
             <>
               {user.role === 'landlord' && (
