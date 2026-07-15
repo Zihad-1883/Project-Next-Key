@@ -8,6 +8,7 @@ import api from '@/lib/api';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { PlusCircle, Loader2, Sparkles, Building2, MapPin, DollarSign, BedDouble, Bath, Image as ImageIcon } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function AddPropertyPage() {
   const { user, loading } = useAuth();
@@ -31,7 +32,7 @@ export default function AddPropertyPage() {
   // Guard redirection checks
   useEffect(() => {
     if (!loading && !user) {
-      router.push('/login');
+      router.replace('/login');
     }
   }, [user, loading, router]);
 
@@ -164,7 +165,12 @@ export default function AddPropertyPage() {
     <div className="min-h-screen flex flex-col bg-slate-50 font-sans">
       <Navbar />
 
-      <main className="flex-1 max-w-4xl w-full mx-auto py-12 px-4 sm:px-6 lg:px-8">
+      <motion.main
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: 'easeOut' }}
+        className="flex-1 max-w-4xl w-full mx-auto py-12 px-4 sm:px-6 lg:px-8"
+      >
         <div className="mb-8">
           <div className="flex items-center gap-2 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full text-indigo-700 font-semibold text-sm max-w-fit mb-3">
             <Sparkles className="w-4 h-4 text-indigo-600" />
@@ -390,7 +396,7 @@ export default function AddPropertyPage() {
             </div>
           </form>
         </div>
-      </main>
+      </motion.main>
     </div>
   );
 }

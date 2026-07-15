@@ -15,6 +15,21 @@ import {
   LayoutDashboard, Loader2, Trash2, PlusCircle, Building2, 
   MapPin, BedDouble, Bath, Home, ArrowUpRight 
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.09, duration: 0.45, ease: 'easeOut' as const },
+  }),
+};
+
+const staggerContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08 } },
+};
 
 interface Property {
   id: string;
@@ -44,7 +59,7 @@ export default function ManagePropertiesPage() {
   // Guard routing checks
   useEffect(() => {
     if (!loading && !user) {
-      router.push('/login');
+      router.replace('/login');
     }
   }, [user, loading, router]);
 
@@ -116,23 +131,6 @@ export default function ManagePropertiesPage() {
   };
 
   const getPricingDistData = () => {
-    let budget = 0;
-    let standard = 0;
-    let premium = 0;
-    let luxury = 0;
-
-    properties.forEach((p) => {
-      if (p.price < 1500) {
-        budget++;
-      } else if (p.price >= 1500 && p.price < 3000) {
-        standard++;
-      } else if (p.price >= 3000 && p.price <= 5000) {
-        premium++;
-      } else {
-        luxury++;
-      }
-    });
-
     // Handle standard scale conversions helper BDT. Since database uses absolute pricing counts (e.g. 2500 for student rooms or 25000 depending on database format).
     // Let's inspect BDT format pricing. Most listings are in thousands (e.g 25000 instead of 2500). Let's detect values dynamically:
     const isHigherScale = properties.some(p => p.price > 10000);
@@ -205,13 +203,26 @@ export default function ManagePropertiesPage() {
     <div className="min-h-screen flex flex-col bg-slate-50 font-sans">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <motion.main
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: 'easeOut' }}
+        className="flex-1 max-w-7xl w-full mx-auto py-12 px-4 sm:px-6 lg:px-8"
+      >
+        <motion.div
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8"
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+        >
           <div>
-            <div className="flex items-center gap-2 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full text-indigo-700 font-semibold text-sm max-w-fit mb-3">
+            <motion.div
+              className="flex items-center gap-2 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full text-indigo-700 font-semibold text-sm max-w-fit mb-3"
+              whileHover={{ scale: 1.03 }}
+            >
               <LayoutDashboard className="w-4 h-4 text-indigo-655" />
               <span>Real Estate Management Dashboard</span>
-            </div>
+            </motion.div>
             <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 font-display">
               Manage Your Listings
             </h1>
@@ -220,14 +231,16 @@ export default function ManagePropertiesPage() {
             </p>
           </div>
 
-          <Link
-            href="/properties/add"
-            className="flex items-center justify-center gap-2 px-5 py-3 border border-transparent rounded-xl shadow-md text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors max-w-fit cursor-pointer"
-          >
-            <PlusCircle className="w-4 h-4" />
-            <span>Add New Property</span>
-          </Link>
-        </div>
+          <motion.div whileHover={{ scale: 1.04, y: -1 }} whileTap={{ scale: 0.97 }}>
+            <Link
+              href="/properties/add"
+              className="flex items-center justify-center gap-2 px-5 py-3 border border-transparent rounded-xl shadow-md text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors max-w-fit cursor-pointer"
+            >
+              <PlusCircle className="w-4 h-4" />
+              <span>Add New Property</span>
+            </Link>
+          </motion.div>
+        </motion.div>
 
         {error && (
           <div className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-xl text-sm text-rose-650 font-medium">
@@ -236,64 +249,81 @@ export default function ManagePropertiesPage() {
         )}
 
         {/* Analytics Summary Panels */}
-        {!dataLoading && properties.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-            {/* Pricing Distribution Recharts Bar Chart */}
-            <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-              <h3 className="text-xs font-extrabold text-slate-700 uppercase tracking-widest mb-4">
-                Listings Pricing Distribution
-              </h3>
-              <div className="h-[220px] w-full flex items-center justify-center">
-                {isClient ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={getPricingDistData()}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis dataKey="name" fontSize={10} fontWeight={600} tickLine={false} stroke="#64748b" />
-                      <YAxis allowDecimals={false} fontSize={10} fontWeight={600} tickLine={false} axisLine={false} stroke="#64748b" />
-                      <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '10px', fontSize: '11px', border: '1px solid #e2e8f0' }} />
-                      <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={40} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="text-xs text-slate-400">Loading visual stats...</div>
-                )}
-              </div>
-            </div>
-
-            {/* Aggregated Stat Cards Column */}
-            <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between">
-              <div>
+        <AnimatePresence>
+          {!dataLoading && properties.length > 0 && (
+            <motion.div
+              className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.45 }}
+            >
+              {/* Pricing Distribution Chart */}
+              <motion.div
+                className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm"
+                whileHover={{ boxShadow: '0 8px 28px -6px rgba(99,102,241,0.1)' }}
+              >
                 <h3 className="text-xs font-extrabold text-slate-700 uppercase tracking-widest mb-4">
-                  Portfolio Metrics
+                  Listings Pricing Distribution
                 </h3>
-                <div className="space-y-4 pt-1">
-                  <div className="flex justify-between items-center text-xs pb-3 border-b border-slate-100">
-                    <span className="text-slate-400 font-semibold">Total Listed Homes</span>
-                    <strong className="text-slate-800 text-sm font-bold">{properties.length} Units</strong>
-                  </div>
+                <div className="h-[220px] w-full flex items-center justify-center">
+                  {isClient ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={getPricingDistData()}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis dataKey="name" fontSize={10} fontWeight={600} tickLine={false} stroke="#64748b" />
+                        <YAxis allowDecimals={false} fontSize={10} fontWeight={600} tickLine={false} axisLine={false} stroke="#64748b" />
+                        <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '10px', fontSize: '11px', border: '1px solid #e2e8f0' }} />
+                        <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={40} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="text-xs text-slate-400">Loading visual stats...</div>
+                  )}
+                </div>
+              </motion.div>
 
-                  <div className="flex justify-between items-center text-xs pb-3 border-b border-slate-100">
-                    <span className="text-slate-400 font-semibold">Average Rent price</span>
-                    <strong className="text-slate-800 text-xs font-bold">
-                      BDT {Math.round(properties.reduce((a, b) => a + b.price, 0) / properties.length).toLocaleString()}
-                    </strong>
-                  </div>
-
-                  <div className="flex justify-between items-center text-xs pb-1">
-                    <span className="text-slate-400 font-semibold">Peak Rent price</span>
-                    <strong className="text-indigo-600 text-xs font-extrabold">
-                      BDT {Math.max(...properties.map((p) => p.price)).toLocaleString()}
-                    </strong>
+              {/* Aggregated Stat Cards Column */}
+              <motion.div
+                className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between"
+                whileHover={{ boxShadow: '0 8px 28px -6px rgba(99,102,241,0.1)' }}
+              >
+                <div>
+                  <h3 className="text-xs font-extrabold text-slate-700 uppercase tracking-widest mb-4">
+                    Portfolio Metrics
+                  </h3>
+                  <div className="space-y-4 pt-1">
+                    {[
+                      { label: 'Total Listed Homes', value: `${properties.length} Units`, className: 'text-slate-800 text-sm font-bold' },
+                      { label: 'Average Rent price', value: `BDT ${Math.round(properties.reduce((a, b) => a + b.price, 0) / properties.length).toLocaleString()}`, className: 'text-slate-800 text-xs font-bold' },
+                      { label: 'Peak Rent price', value: `BDT ${Math.max(...properties.map((p) => p.price)).toLocaleString()}`, className: 'text-indigo-600 text-xs font-extrabold' },
+                    ].map((stat, i) => (
+                      <motion.div
+                        key={stat.label}
+                        className={`flex justify-between items-center text-xs ${i < 2 ? 'pb-3 border-b border-slate-100' : 'pb-1'}`}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.1 + 0.3, duration: 0.35 }}
+                      >
+                        <span className="text-slate-400 font-semibold">{stat.label}</span>
+                        <strong className={stat.className}>{stat.value}</strong>
+                      </motion.div>
+                    ))}
                   </div>
                 </div>
-              </div>
 
-              <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-xl text-[10px] text-indigo-750 font-semibold leading-relaxed mt-6">
-                💡 <strong>Aggregate Alert:</strong> Budget options (under BDT 15k) maintain a 92% speedier tenant matching success rate in local suburbs.
-              </div>
-            </div>
-          </div>
-        )}
+                <motion.div
+                  className="bg-indigo-50 border border-indigo-100 p-4 rounded-xl text-[10px] text-indigo-750 font-semibold leading-relaxed mt-6"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                >
+                  💡 <strong>Aggregate Alert:</strong> Budget options (under BDT 15k) maintain a 92% speedier tenant matching success rate in local suburbs.
+                </motion.div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {dataLoading ? (
           /* Grid Loaders */
@@ -326,12 +356,27 @@ export default function ManagePropertiesPage() {
         ) : (
           /* Listings Grid */
           <div>
-            <h3 className="text-base font-bold text-slate-800 mb-6 font-display">Active Listed Properties</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {properties.map((property) => (
-                <div
+            <motion.h3
+              className="text-base font-bold text-slate-800 mb-6 font-display"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.35 }}
+            >
+              Active Listed Properties
+            </motion.h3>
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              variants={staggerContainer}
+              initial="hidden"
+              animate="visible"
+            >
+              {properties.map((property, cardIdx) => (
+                <motion.div
                   key={property.id}
-                  className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-205 flex flex-col"
+                  variants={fadeUp}
+                  custom={cardIdx}
+                  whileHover={{ y: -5, boxShadow: '0 12px 32px -8px rgba(99,102,241,0.15)' }}
+                  className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm flex flex-col transition-colors duration-200"
                 >
                   {/* Image */}
                   <div className="relative aspect-video w-full bg-slate-101 overflow-hidden">
@@ -407,12 +452,12 @@ export default function ManagePropertiesPage() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
         )}
-      </main>
+      </motion.main>
     </div>
   );
 }

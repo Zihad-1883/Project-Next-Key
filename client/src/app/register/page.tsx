@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/api';
+import { motion } from 'framer-motion';
 
 export default function RegisterPage() {
   const { login } = useAuth();
@@ -75,7 +76,12 @@ export default function RegisterPage() {
       <div className="absolute top-0 -left-4 w-96 h-96 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
       <div className="absolute bottom-0 right-10 w-96 h-96 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse animation-delay-2000"></div>
 
-      <div className="relative w-full max-w-lg space-y-8 z-10">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98, y: 15 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        className="relative w-full max-w-lg space-y-8 z-10"
+      >
         <div className="flex flex-col items-center">
           <div className="flex items-center gap-2 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full text-indigo-600 font-semibold text-sm mb-4">
             <Sparkles className="w-4 h-4" />
@@ -217,7 +223,7 @@ export default function RegisterPage() {
             </Link>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -5,7 +5,8 @@ import Navbar from '@/components/Navbar';
 import PropertyCard, { PropertyCardSkeleton, PropertyListItem } from '@/components/PropertyCard';
 import api from '@/lib/api';
 import axios from 'axios';
-import { Search, SlidersHorizontal, ArrowUpDown, ChevronLeft, ChevronRight, RotateCcw, X, Building2 } from 'lucide-react';
+import { Search, SlidersHorizontal, ChevronLeft, ChevronRight, RotateCcw, X, Building2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ExplorePropertiesPage() {
   // Query Filter States
@@ -108,7 +109,12 @@ export default function ExplorePropertiesPage() {
     <div className="min-h-screen flex flex-col bg-slate-50 font-sans">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <motion.main
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: 'easeOut' }}
+        className="flex-1 max-w-7xl w-full mx-auto py-8 px-4 sm:px-6 lg:px-8"
+      >
         {/* Upper Header Row */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div>
@@ -144,7 +150,12 @@ export default function ExplorePropertiesPage() {
         {/* Catalog Main Layout (Two columns on desktop) */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Left Column: Desktop filters sidebar */}
-          <div className="hidden lg:block lg:col-span-1 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm h-fit sticky top-20">
+          <motion.div
+            initial={{ opacity: 0, x: -16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="hidden lg:block lg:col-span-1 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm h-fit sticky top-20"
+          >
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
               <div className="flex items-center gap-2 text-slate-900 font-bold">
                 <SlidersHorizontal className="w-4 h-4 text-indigo-650" />
@@ -237,13 +248,13 @@ export default function ExplorePropertiesPage() {
                 </select>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Right Column: Listing Displays */}
           <div className="lg:col-span-3">
             {/* Sort & Settings Info line */}
-            <div className="flex items-center justify-between gap-4 mb-6 bg-white border border-slate-250/60 rounded-xl p-4 shadow-sm text-sm">
-              <div className="text-slate-500 font-medium">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6 bg-white border border-slate-200/60 rounded-xl p-3 sm:p-4 shadow-sm text-sm">
+              <div className="text-slate-500 font-medium text-xs sm:text-sm">
                 {loading ? (
                   <span>Searching properties...</span>
                 ) : (
@@ -251,26 +262,25 @@ export default function ExplorePropertiesPage() {
                 )}
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                 <button
                   type="button"
                   onClick={() => setMobileFiltersOpen(true)}
-                  className="lg:hidden flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-650 hover:bg-slate-50 transition-colors"
+                  className="lg:hidden flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors"
                 >
                   <SlidersHorizontal className="w-4 h-4 cursor-pointer" />
                   <span>Filters</span>
                 </button>
 
                 <div className="flex items-center gap-2">
-                  <ArrowUpDown className="w-4 h-4 text-slate-450 hide-mobile" />
                   <select
                     value={sortOption}
                     onChange={(e) => { setSortOption(e.target.value); setPage(1); }}
                     className="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 bg-white focus:outline-none focus:border-indigo-600"
                   >
-                    <option value="createdAt:desc">Newest Listings</option>
-                    <option value="price:asc">Price (Low to High)</option>
-                    <option value="price:desc">Price (High to Low)</option>
+                    <option value="createdAt:desc">Newest</option>
+                    <option value="price:asc">Price ↑</option>
+                    <option value="price:desc">Price ↓</option>
                   </select>
                 </div>
               </div>
@@ -317,50 +327,74 @@ export default function ExplorePropertiesPage() {
 
             {/* Pagination Row */}
             {!loading && totalPages > 1 && (
-              <div className="flex items-center justify-between border-t border-slate-200 pt-8 mt-12">
+              <div className="flex items-center justify-between border-t border-slate-200 pt-6 mt-10 gap-2">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="flex items-center gap-1.5 px-4 py-2 border border-slate-200 hover:border-slate-350 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 sm:px-4 py-2 border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex-shrink-0"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  <span>Previous</span>
+                  <span className="hidden sm:inline">Previous</span>
                 </button>
 
-                <div className="flex items-center gap-1.5">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                    <button
-                      key={p}
-                      onClick={() => setPage(p)}
-                      className={`w-9 h-9 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
-                        page === p
-                          ? 'bg-indigo-600 text-white shadow-sm'
-                          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
-                      }`}
-                    >
-                      {p}
-                    </button>
-                  ))}
+                <div className="flex items-center gap-1 overflow-x-auto max-w-full">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                    .reduce((acc: (number | 'ellipsis')[], p, idx, arr) => {
+                      if (idx > 0 && (p as number) - (arr[idx - 1] as number) > 1) acc.push('ellipsis');
+                      acc.push(p);
+                      return acc;
+                    }, [])
+                    .map((p, i) =>
+                      p === 'ellipsis' ? (
+                        <span key={`e-${i}`} className="w-7 text-center text-xs text-slate-400">…</span>
+                      ) : (
+                        <button
+                          key={p}
+                          onClick={() => setPage(p as number)}
+                          className={`w-8 h-8 rounded-xl text-xs font-bold transition-colors cursor-pointer flex-shrink-0 ${
+                            page === p
+                              ? 'bg-indigo-600 text-white shadow-sm'
+                              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      )
+                    )
+                  }
                 </div>
 
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="flex items-center gap-1.5 px-4 py-2 border border-slate-200 hover:border-slate-350 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 sm:px-4 py-2 border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex-shrink-0"
                 >
-                  <span>Next</span>
+                  <span className="hidden sm:inline">Next</span>
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
             )}
           </div>
         </div>
-      </main>
+      </motion.main>
 
       {/* Slide-out Mobile Filters overlay window */}
-      {mobileFiltersOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex justify-end lg:hidden">
-          <div className="w-4/5 max-w-sm bg-white h-full p-6 flex flex-col justify-between overflow-y-auto">
+      <AnimatePresence>
+        {mobileFiltersOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex justify-end lg:hidden"
+          >
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '105%' }}
+              transition={{ type: 'spring', damping: 26, stiffness: 220 }}
+              className="w-4/5 max-w-sm bg-white h-full p-6 flex flex-col justify-between overflow-y-auto"
+            >
             <div>
               <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
                 <div className="font-bold text-slate-900 flex items-center gap-2">
@@ -465,9 +499,10 @@ export default function ExplorePropertiesPage() {
                 Apply Filters
               </button>
             </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

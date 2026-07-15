@@ -5,17 +5,54 @@
   --font-display: var(--font-outfit);
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 :root {
   --background: #f8fafc; /* Slate 50 */
   --foreground: #0f172a; /* Slate 900 */
+}
+
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), sans-serif;
+  overflow-x: hidden;
+  /* Prevent iOS momentum scrolling issues */
+  -webkit-overflow-scrolling: touch;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display), sans-serif;
+}
+
+/* Prevent images from overflowing on mobile */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Better tap targets on mobile */
+button, a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition-property: color, background-color, border-color, box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+}
+
+/* Override for elements that should not auto-transition */
+.no-transition {
+  transition: none !important;
 }

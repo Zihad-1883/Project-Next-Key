@@ -11,6 +11,7 @@ import {
   Loader2, MapPin, BedDouble, Bath, Home, ArrowLeft, Mail, 
   ShieldAlert, CheckCircle2, Calendar, AlertCircle, Star
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface LandlordInfo {
   id: string;
@@ -270,7 +271,12 @@ export default function PropertyDetailsPage() {
     <div className="min-h-screen flex flex-col bg-slate-50 font-sans">
       <Navbar />
 
-      <main className="flex-grow max-w-7xl w-full mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <motion.main
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45 }}
+        className="flex-grow max-w-7xl w-full mx-auto py-8 px-4 sm:px-6 lg:px-8"
+      >
         {/* Back Button */}
         <button
           onClick={() => router.push('/properties')}
@@ -601,7 +607,7 @@ export default function PropertyDetailsPage() {
             </div>
           </div>
         </div>
-      </main>
+      </motion.main>
     </div>
   );
 }
