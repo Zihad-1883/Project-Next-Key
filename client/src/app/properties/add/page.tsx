@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import Navbar from '@/components/Navbar';
 import api from '@/lib/api';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 import { PlusCircle, Loader2, Sparkles, Building2, MapPin, DollarSign, BedDouble, Bath, Image as ImageIcon } from 'lucide-react';
 
 export default function AddPropertyPage() {
@@ -143,6 +144,7 @@ export default function AddPropertyPage() {
       });
 
       if (response.data.success) {
+        toast.success('Property listing created successfully!');
         router.push('/properties/manage');
       }
     } catch (err) {
@@ -151,6 +153,7 @@ export default function AddPropertyPage() {
       if (axios.isAxiosError(err)) {
         errMsg = err.response?.data?.message || errMsg;
       }
+      toast.error(errMsg);
       setError(errMsg);
     } finally {
       setSubmitLoading(false);

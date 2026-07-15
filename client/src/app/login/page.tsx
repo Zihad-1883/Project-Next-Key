@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/api';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 import { Loader2, KeyRound, Sparkles, User, ShieldCheck } from 'lucide-react';
 
 export default function LoginPage() {
@@ -25,7 +26,7 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
 
-    const demoEmail = role === 'tenant' ? 'tenant@nextkey.com' : 'landlord@nextkey.com';
+    const demoEmail = role === 'tenant' ? 'tenant@nextkey.xyz' : 'landlord@nextkey.xyz';
     const demoPassword = 'password123'; // Standard seeded password
 
     // Auto-fill form fields visually for better UX
@@ -42,6 +43,7 @@ export default function LoginPage() {
 
       if (response.data.success) {
         const { token, user } = response.data;
+        toast.success(`Sandbox Access Active: ${user.name} logged in!`);
         login(token, user);
       }
     } catch (err) {
@@ -50,6 +52,7 @@ export default function LoginPage() {
       if (axios.isAxiosError(err)) {
         errMsg = err.response?.data?.message || errMsg;
       }
+      toast.error(errMsg);
       setError(errMsg);
     } finally {
       setLoading(false);
@@ -76,6 +79,7 @@ export default function LoginPage() {
 
       if (response.data.success) {
         const { token, user } = response.data;
+        toast.success(`Logged in as ${user.name}!`);
         login(token, user);
       }
     } catch (err) {
@@ -84,6 +88,7 @@ export default function LoginPage() {
       if (axios.isAxiosError(err)) {
         errMsg = err.response?.data?.message || errMsg;
       }
+      toast.error(errMsg);
       setError(errMsg);
     } finally {
       setLoading(false);

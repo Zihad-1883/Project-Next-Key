@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit, Inter } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
+import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -33,6 +34,18 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col font-sans bg-slate-50 text-slate-700">
         <AuthProvider>
           {children}
+          <Toaster 
+            position="top-right" 
+            toastOptions={{ 
+              style: { 
+                borderRadius: '12px',
+                background: '#334155',
+                color: '#fff',
+                fontSize: '12.5px',
+                fontWeight: '600',
+              } 
+            }} 
+          />
         </AuthProvider>
       </body>
     </html>

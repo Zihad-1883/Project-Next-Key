@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
@@ -130,7 +131,12 @@ export default function Home() {
         ))}
 
         {/* Hero Overlay Context */}
-        <div className="relative z-10 max-w-4xl mx-auto px-4 text-center space-y-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          className="relative z-10 max-w-4xl mx-auto px-4 text-center space-y-6"
+        >
           <span className="inline-block bg-indigo-500/20 text-indigo-300 font-extrabold text-[10px] tracking-widest uppercase px-3 py-1 rounded-full border border-indigo-500/30">
             Secure Home Rental Solutions
           </span>
@@ -163,7 +169,7 @@ export default function Home() {
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
-        </div>
+        </motion.div>
       </section>
 
       {/* SECTION 2: CATEGORY OPTIONS GRID */}
@@ -178,11 +184,15 @@ export default function Home() {
           {categories.map((cat, idx) => {
             const Icon = cat.icon;
             return (
-              <Link 
+              <motion.div
                 key={idx}
-                href={`/properties?type=${cat.type}`}
-                className="bg-white rounded-2xl border border-slate-205/70 p-6 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all group cursor-pointer block"
+                whileHover={{ y: -5, scale: 1.01 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               >
+                <Link 
+                  href={`/properties?type=${cat.type}`}
+                  className="bg-white rounded-2xl border border-slate-205/70 p-6 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all group cursor-pointer block"
+                >
                 <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-605 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300">
                   <Icon className="w-5 h-5" />
                 </div>
@@ -192,7 +202,8 @@ export default function Home() {
                   <span>{cat.count}</span>
                   <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                 </div>
-              </Link>
+                </Link>
+              </motion.div>
             );
           })}
         </div>
@@ -211,7 +222,14 @@ export default function Home() {
             {workflowSteps.map((step, idx) => {
               const Icon = step.icon;
               return (
-                <div key={idx} className="relative flex flex-col items-center text-center space-y-4 group">
+                <motion.div 
+                  key={idx} 
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.15, duration: 0.5 }}
+                  className="relative flex flex-col items-center text-center space-y-4 group"
+                >
                   <div className="w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center text-indigo-400 text-xl font-bold group-hover:border-indigo-500 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 relative z-10">
                     <Icon className="w-6 h-6" />
                   </div>
@@ -220,7 +238,7 @@ export default function Home() {
                   </span>
                   <h3 className="font-extrabold text-white text-base font-display">{step.title}</h3>
                   <p className="text-slate-400 text-xs max-w-xs leading-relaxed">{step.desc}</p>
-                </div>
+                </motion.div>
               );
             })}
           </div>

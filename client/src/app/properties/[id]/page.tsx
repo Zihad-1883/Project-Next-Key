@@ -6,9 +6,10 @@ import { useAuth } from '@/context/AuthContext';
 import Navbar from '@/components/Navbar';
 import api from '@/lib/api';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 import { 
   Loader2, MapPin, BedDouble, Bath, Home, ArrowLeft, Mail, 
-  ShieldAlert, CheckCircle2, Calendar, MessageSquare, AlertCircle, Star
+  ShieldAlert, CheckCircle2, Calendar, AlertCircle, Star
 } from 'lucide-react';
 
 interface LandlordInfo {
@@ -101,8 +102,10 @@ export default function PropertyDetailsPage() {
       }
     };
 
-    fetchDetails();
-    fetchReviews();
+    Promise.resolve().then(() => {
+      fetchDetails();
+      fetchReviews();
+    });
   }, [id, fetchReviews]);
 
   const handleRequestRental = async (e: React.FormEvent) => {
@@ -138,6 +141,7 @@ export default function PropertyDetailsPage() {
         setRequestSuccess(true);
         setContactNo('');
         setStartDate('');
+        toast.success('Rental request submitted successfully!');
       }
     } catch (err) {
       console.error('Failed to submit rental request:', err);
@@ -145,6 +149,7 @@ export default function PropertyDetailsPage() {
       if (axios.isAxiosError(err)) {
         errMsg = err.response?.data?.message || errMsg;
       }
+      toast.error(errMsg);
       setRequestError(errMsg);
     } finally {
       setRequestLoading(false);
@@ -182,6 +187,7 @@ export default function PropertyDetailsPage() {
         setNewComment('');
         setNewRating(5);
         fetchReviews(); // Refresh review lists
+        toast.success('Review posted successfully!');
       }
     } catch (err) {
       console.error('Failed to post review:', err);
@@ -189,6 +195,7 @@ export default function PropertyDetailsPage() {
       if (axios.isAxiosError(err)) {
         errMsg = err.response?.data?.message || errMsg;
       }
+      toast.error(errMsg);
       setSubmitReviewError(errMsg);
     } finally {
       setSubmitReviewLoading(false);

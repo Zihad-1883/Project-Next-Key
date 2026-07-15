@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import Navbar from '@/components/Navbar';
 import api from '@/lib/api';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
 } from 'recharts';
@@ -49,7 +50,9 @@ export default function ManagePropertiesPage() {
 
   // Load properties once user details are resolved
   useEffect(() => {
-    setIsClient(true);
+    Promise.resolve().then(() => {
+      setIsClient(true);
+    });
     if (!user || user.role !== 'landlord') {
       return;
     }
@@ -97,6 +100,7 @@ export default function ManagePropertiesPage() {
       if (response.data.success) {
         // Filter out from local state instantly
         setProperties((prev) => prev.filter((p) => p.id !== propertyId));
+        toast.success('Property listing deleted successfully!');
       }
     } catch (err) {
       console.error('Failed to delete property listing:', err);
@@ -104,6 +108,7 @@ export default function ManagePropertiesPage() {
       if (axios.isAxiosError(err)) {
         errMsg = err.response?.data?.message || errMsg;
       }
+      toast.error(errMsg);
       setError(errMsg);
     } finally {
       setDeletingId(null);
