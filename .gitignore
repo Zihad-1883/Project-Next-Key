@@ -1,7 +1,13 @@
 # NextKey - Ignore Lists
 
 # Documentation
-*.md
+architecture.md
+DOCS.md
+design.md
+memory.md
+phases.md
+prd.md
+ruled.md
 
 # Environments
 .env

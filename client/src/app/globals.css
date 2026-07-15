@@ -26,7 +26,6 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), sans-serif;
   overflow-x: hidden;
-  /* Prevent iOS momentum scrolling issues */
   -webkit-overflow-scrolling: touch;
 }
 
@@ -45,14 +44,16 @@ button, a {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Smooth transitions for all interactive elements */
-* {
-  transition-property: color, background-color, border-color, box-shadow;
-  transition-duration: 150ms;
-  transition-timing-function: ease;
-}
-
-/* Override for elements that should not auto-transition */
-.no-transition {
-  transition: none !important;
+/* 
+  Hero slideshow background: smooth cross-fade between slides.
+  We use a dedicated class so the 1s duration isn't overridden 
+  by any other transition utilities on the element.
+*/
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  will-change: opacity;
+  transition: opacity 1s ease-in-out;
 }

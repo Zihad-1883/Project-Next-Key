@@ -135,7 +135,7 @@ export default function Home() {
         {HERO_SLIDES.map((slide, idx) => (
           <div
             key={idx}
-            className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000"
+            className="hero-slide"
             style={{
               backgroundImage: `url(${slide})`,
               opacity: idx === activeSlide ? 0.35 : 0,
